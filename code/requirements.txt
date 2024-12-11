@@ -1,4 +1,5 @@
 functions-framework==3.*
 google-cloud-pubsub
 google-cloud-storage
+google-cloud-bigquery
 pandas
