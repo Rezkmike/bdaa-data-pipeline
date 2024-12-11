@@ -5,7 +5,7 @@ from google.cloud import pubsub_v1, storage
 
 # Set up environment variables
 # PUBSUB_TOPIC = os.getenv('PUBSUB_TOPIC')
-PUBSUB_TOPIC = "bdaa-raw"
+PUBSUB_TOPIC = "projects/enduring-badge-443405-s6/topics/bdaa-raw"
 
 def gcs_event_to_pubsub(event, context):
     """
