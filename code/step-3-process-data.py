@@ -1,13 +1,10 @@
 import csv
 import os
+import io  # Add this import for StringIO
 import pandas as pd
 from google.cloud import storage, bigquery
 
 # Environment Variables
-# PROJECT_ID = os.getenv('PROJECT_ID')
-# DATASET_NAME = os.getenv('DATASET_NAME')
-# TABLE_METADATA = os.getenv('TABLE_METADATA')  # Metadata table name
-# TABLE_TIMESERIES = os.getenv('TABLE_TIMESERIES')  # Time-series table name
 PROJECT_ID = "enduring-badge-443405-s6"
 DATASET_NAME = "bdaa"
 TABLE_METADATA = "tbl_metadata"
@@ -33,12 +30,12 @@ def preprocess_and_load_to_bq(event, context):
     file_content = blob.download_as_text()
 
     # Load data into a Pandas DataFrame
-    data = pd.read_csv(pd.compat.StringIO(file_content))
+    data = pd.read_csv(io.StringIO(file_content))
 
     # Data Cleaning and Transformation
     print("Starting data preprocessing...")
     # Handle missing values in ISO2
-    data['ISO2'].fillna('UNKNOWN', inplace=True)
+    data['ISO2'] = data['ISO2'].fillna('UNKNOWN')
 
     # Drop columns with excessive missing values (e.g., future years)
     data.drop(columns=[col for col in data.columns if data[col].isnull().mean() > 0.5], inplace=True)
