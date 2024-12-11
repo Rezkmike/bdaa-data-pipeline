@@ -2,6 +2,7 @@ import base64
 import json
 import os
 from google.cloud import storage
+from datetime import datetime
 
 # Environment variables
 BUCKET_NAME = "bdaa-staging"
@@ -9,7 +10,7 @@ BUCKET_NAME = "bdaa-staging"
 def pubsub_to_gcs(event, context):
     """
     Triggered by a Pub/Sub message.
-    Writes the message data to a CSV file in GCS.
+    Writes a single row of data to a timestamped CSV file in GCS.
     """
     # Initialize Cloud Storage client
     storage_client = storage.Client()
@@ -30,23 +31,19 @@ def pubsub_to_gcs(event, context):
         print(f"Error decoding JSON: {e}")
         return
 
-    # Write the data to GCS (appending to a file)
-    file_name = "pubsub_output.csv"
+    # Generate a timestamped filename
+    timestamp = datetime.utcnow().strftime('%Y%m%d%H%M%S')
+    file_name = f"pubsub_{timestamp}.csv"
     blob = bucket.blob(file_name)
 
-    # Read the current content of the file, if it exists
+    # Prepare content for the new file
     content = ""
-    if blob.exists():
-        content = blob.download_as_text()
+    # Add headers if the file is empty
+    content += ",".join(row.keys()) + "\n"
+    content += ",".join(str(value) for value in row.values()) + "\n"
 
-    # Append the new row to the file
-    new_content = content
-    if not content.strip():  # Add headers if the file is empty
-        new_content += ",".join(row.keys()) + "\n"
-    new_content += ",".join(str(value) for value in row.values()) + "\n"
+    # Upload the file to GCS
+    blob.upload_from_string(content)
 
-    # Upload the updated content back to GCS
-    blob.upload_from_string(new_content)
-
-    print(f"Data appended to {file_name} in bucket {BUCKET_NAME}.")
+    print(f"Data written to {file_name} in bucket {BUCKET_NAME}.")
     return f"Data written to {file_name}."
