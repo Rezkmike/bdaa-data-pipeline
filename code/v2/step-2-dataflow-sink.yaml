@@ -1,0 +1,94 @@
+pipeline:
+  transforms:
+    - type: ReadFromPubSub
+      name: Source
+      config:
+        subscription: projects/enduring-badge-443405-s6/subscriptions/bdaa-sub
+        format: json
+        schema:
+          type: object
+          properties:
+            ObjectId: {type: integer}
+            Country: {type: string}
+            ISO3: {type: string}
+            Industry: {type: string}
+            Gas_Type: {type: string}
+            F1970: {type: number}
+            F1971: {type: number}
+            F1972: {type: number}
+            F1973: {type: number}
+            F1974: {type: number}
+            F1975: {type: number}
+            F1976: {type: number}
+            F1977: {type: number}
+            F1978: {type: number}
+            F1979: {type: number}
+            F1980: {type: number}
+            F1981: {type: number}
+            F1982: {type: number}
+            F1983: {type: number}
+            F1984: {type: number}
+            F1985: {type: number}
+            F1986: {type: number}
+            F1987: {type: number}
+            F1988: {type: number}
+            F1989: {type: number}
+            F1990: {type: number}
+            F1991: {type: number}
+            F1992: {type: number}
+            F1993: {type: number}
+            F1994: {type: number}
+            F1995: {type: number}
+            F1996: {type: number}
+            F1997: {type: number}
+            F1998: {type: number}
+            F1999: {type: number}
+            F2000: {type: number}
+            F2001: {type: number}
+            F2002: {type: number}
+            F2003: {type: number}
+            F2004: {type: number}
+            F2005: {type: number}
+            F2006: {type: number}
+            F2007: {type: number}
+            F2008: {type: number}
+            F2009: {type: number}
+            F2010: {type: number}
+            F2011: {type: number}
+            F2012: {type: number}
+            F2013: {type: number}
+            F2014: {type: number}
+            F2015: {type: number}
+            F2016: {type: number}
+            F2017: {type: number}
+            F2018: {type: number}
+            F2019: {type: number}
+            F2020: {type: number}
+            F2021: {type: number}
+            F2022: {type: number}
+            F2023: {type: number}
+            F2024: {type: number}
+            F2025: {type: number}
+            F2026: {type: number}
+            F2027: {type: number}
+            F2028: {type: number}
+            F2029: {type: number}
+            F2030: {type: number}
+    - type: WriteToCsv
+      name: Sink
+      config:
+        path: gs://bdaa-transform/20241225/output
+      input: Source
+    - type: WriteToBigQuery
+      name: Sink 2
+      config:
+        table: :dbaa_dataset.gas_emission
+        num_streams: 1
+      input: Source
+  windowing:
+    type: fixed
+    size: 60
+options:
+  labels:
+    - yaml-origin=job-builder
+  streaming: true
