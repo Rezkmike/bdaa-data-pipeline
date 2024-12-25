@@ -20,15 +20,24 @@ def publish_to_pubsub(topic_name, data):
     future = publisher.publish(topic_path, data)
     future.result()  # Ensure the publish was successful
 
-def process_csv(file_path):
+def process_csv_from_gcs(bucket_name, file_name):
     """
-    Process the CSV file and select required columns.
+    Process the CSV file directly from GCS and select required columns.
 
-    :param file_path: Path to the CSV file
+    :param bucket_name: GCS bucket name
+    :param file_name: Name of the file in GCS
     :return: Processed data as a dictionary
     """
-    # Load the CSV file
-    df = pd.read_csv(file_path)
+    # Initialize the GCS client
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.blob(file_name)
+
+    # Download CSV content as a string
+    csv_content = blob.download_as_text()
+
+    # Load the CSV content into a DataFrame
+    df = pd.read_csv(pd.compat.StringIO(csv_content))
 
     # Select specific columns
     selected_columns = [
@@ -104,20 +113,7 @@ def process_csv(file_path):
     # Convert the DataFrame to JSON records
     return processed_df.to_dict(orient="records")
 
-def download_file_from_gcs(bucket_name, file_name, destination_path):
-    """
-    Download a file from GCS to a local path.
-
-    :param bucket_name: GCS bucket name
-    :param file_name: Name of the file in GCS
-    :param destination_path: Local path to save the file
-    """
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(file_name)
-    blob.download_to_filename(destination_path)
-
-def gcs_event_to_pubsub(event, context):
+def main(event, context):
     """
     Cloud Function entry point triggered by GCS.
 
@@ -126,19 +122,15 @@ def gcs_event_to_pubsub(event, context):
     """
     bucket_name = event['bucket']
     file_name = event['name']
-    temp_file_path = "/tmp/temp_file.csv"
 
     print(f"Processing file: {file_name} from bucket: {bucket_name}")
 
-    # Download the file from GCS
-    download_file_from_gcs(bucket_name, file_name, temp_file_path)
-
-    # Process the CSV file
-    processed_data = process_csv(temp_file_path)
+    # Process the CSV file directly from GCS
+    processed_data = process_csv_from_gcs(bucket_name, file_name)
 
     # Publish each record to Pub/Sub
-    # topic_name = os.getenv("PUBSUB_TOPIC")
+    # topic_name = PUBSUB_TOPIC
     for record in processed_data:
-        publish_to_pubsub(topic_name, json.dumps(record))
+        publish_to_pubsub(PUBSUB_TOPIC, json.dumps(record))
 
     print(f"Published {len(processed_data)} records to Pub/Sub topic: {PUBSUB_TOPIC}")
