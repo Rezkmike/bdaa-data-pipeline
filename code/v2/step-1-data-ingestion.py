@@ -4,7 +4,8 @@ import pandas as pd
 from google.cloud import pubsub_v1, storage
 import json
 
-PUBSUB_TOPIC = "projects/enduring-badge-443405-s6/topics/bdaa-raw"
+# PUBSUB_TOPIC = "projects/enduring-badge-443405-s6/topics/bdaa-raw"
+PUBSUB_TOPIC = "bdaa-raw"
 PROJECT_ID = "enduring-badge-443405-s6"
 
 def publish_to_pubsub(topic_name, data):
