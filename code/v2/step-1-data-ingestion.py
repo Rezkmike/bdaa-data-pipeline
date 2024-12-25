@@ -1,9 +1,11 @@
 import os
+import io
 import pandas as pd
 from google.cloud import pubsub_v1, storage
 import json
 
 PUBSUB_TOPIC = "projects/enduring-badge-443405-s6/topics/bdaa-raw"
+PROJECT_ID = "enduring-badge-443405-s6"
 
 def publish_to_pubsub(topic_name, data):
     """
@@ -13,7 +15,7 @@ def publish_to_pubsub(topic_name, data):
     :param data: Data to publish (string)
     """
     publisher = pubsub_v1.PublisherClient()
-    topic_path = publisher.topic_path(os.getenv("PROJECT_ID"), topic_name)
+    topic_path = publisher.topic_path(PROJECT_ID, topic_name)
 
     # Convert data to bytes
     data = data.encode("utf-8")
@@ -37,7 +39,7 @@ def process_csv_from_gcs(bucket_name, file_name):
     csv_content = blob.download_as_text()
 
     # Load the CSV content into a DataFrame
-    df = pd.read_csv(pd.compat.StringIO(csv_content))
+    df = pd.read_csv(io.StringIO(csv_content))
 
     # Select specific columns
     selected_columns = [
