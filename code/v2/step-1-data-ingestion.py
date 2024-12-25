@@ -101,17 +101,20 @@ def process_csv_from_gcs(bucket_name, file_name):
             'F2019',
             'F2020',
             'F2021',
-            'F2022',
-            'F2023',
-            'F2024',
-            'F2025',
-            'F2026',
-            'F2027',
-            'F2028',
-            'F2029',
-            'F2030'
+            'F2022'
+            # 'F2023',
+            # 'F2024',
+            # 'F2025',
+            # 'F2026',
+            # 'F2027',
+            # 'F2028',
+            # 'F2029',
+            # 'F2030'
         ]  # Replace with your column names
     processed_df = df[selected_columns]
+
+    # Remove rows with empty values
+    processed_df = processed_df.dropna()
 
     # Convert the DataFrame to JSON records
     return processed_df.to_dict(orient="records")
