@@ -66,14 +66,14 @@ pipeline:
             F2020: {type: number}
             F2021: {type: number}
             F2022: {type: number}
-            F2023: {type: number}
-            F2024: {type: number}
-            F2025: {type: number}
-            F2026: {type: number}
-            F2027: {type: number}
-            F2028: {type: number}
-            F2029: {type: number}
-            F2030: {type: number}
+            # F2023: {type: number}
+            # F2024: {type: number}
+            # F2025: {type: number}
+            # F2026: {type: number}
+            # F2027: {type: number}
+            # F2028: {type: number}
+            # F2029: {type: number}
+            # F2030: {type: number}
     - type: WriteToCsv
       name: Sink
       config:
